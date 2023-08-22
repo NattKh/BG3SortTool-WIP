@@ -339,3 +339,5 @@ ASALocalRun/
 .mfractor/
 *.zip
 *.psd
+/Program.cs
+/BG3LootTableGenerator.sln
