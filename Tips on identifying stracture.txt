@@ -1,0 +1,16 @@
+Tips to Identify Important Logic vs. Non-Important Parts:
+Functionality: Understand the core functionality of the code. If a piece of code directly contributes to the desired output or behavior, it's likely essential.
+
+Data Flow: Track how data flows through the code. Variables that are populated, manipulated, and then used in subsequent operations are often part of the core logic.
+
+Conditional Statements: if, else, switch, and loop constructs often contain logic that determines the flow of the program. The conditions and the code within these blocks are typically crucial.
+
+External Calls: Calls to external libraries, APIs, or databases usually perform essential tasks. It's good to understand what these calls do and how they contribute to the overall functionality.
+
+Comments: Well-commented code can help you understand the purpose of different code sections. Comments might indicate the importance of the code they describe.
+
+Error Handling: Code that handles errors, exceptions, or edge cases might not be "core" logic, but it's essential for robustness and reliability.
+
+Refactoring: If you're unsure about a piece of code, try commenting it out and running the program. If the program's behavior changes significantly or breaks, that code is likely essential.
+
+Remember, understanding code deeply often requires running it, testing it, and making modifications to see how changes affect behavior. Over time, as you gain more experience, you'll develop an intuition for identifying essential parts of a codebase.
