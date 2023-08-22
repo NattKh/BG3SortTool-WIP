@@ -1,3 +1,6 @@
+base on Liareth command line code, I decide to make a GUI version of the tool. It's early WIP as this is my first project ever.
+credit
+https://github.com/Liareth/BG3LootTableGenerator 
 # BG3LootTableGenerator
 Dumps all items to .json, and creates treasure tables for armours.
 
