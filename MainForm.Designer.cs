@@ -28,23 +28,31 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             userControl11 = new UserControl1();
             SuspendLayout();
             // 
             // userControl11
             // 
-            userControl11.Location = new Point(56, 83);
+            userControl11.BackColor = SystemColors.ActiveCaption;
+            userControl11.Location = new Point(-15, -12);
+            userControl11.Margin = new Padding(3, 4, 3, 4);
             userControl11.Name = "userControl11";
-            userControl11.Size = new Size(1365, 675);
+            userControl11.Size = new Size(1772, 1016);
             userControl11.TabIndex = 0;
             userControl11.Load += UserControl11_Load;
             // 
             // MainForm
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(11F, 28F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1469, 859);
+            BackColor = SystemColors.ButtonFace;
+            ClientSize = new Size(1466, 835);
             Controls.Add(userControl11);
+            Font = new Font("Segoe UI", 10F);
+            FormBorderStyle = FormBorderStyle.FixedToolWindow;
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            Margin = new Padding(3, 4, 3, 4);
             Name = "MainForm";
             Text = "BG3Sort";
             Load += Form1_Load;

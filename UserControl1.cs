@@ -1,26 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Xml.Linq;
-using System.Xml.XPath;
-using System.IO;
-using BG3LootTableGenerator.DataStructures;
-
-namespace BG3LootTableGenerator
+﻿namespace BG3LootTableGenerator
 {
     public partial class UserControl1 : UserControl
     {
-    private LootTableGenerator _lootTableGenerator = new();
+        private LootTableGenerator _lootTableGenerator = new();
 
-    // ... rest of the code ...
+        // ... rest of the code ...
         public UserControl1()
         {
             InitializeComponent();
@@ -67,17 +51,25 @@ namespace BG3LootTableGenerator
 
         private void button3_Click(object sender, EventArgs e)
         {
-            // Ensure that both source and destination directories are selected
-            if (string.IsNullOrEmpty(textBoxSource.Text) || string.IsNullOrEmpty(textBoxDestination.Text))
+            this.Cursor = Cursors.WaitCursor; // Set the cursor to wait mode
+
+            try
             {
-                MessageBox.Show("Please select both source and destination directories.");
-                return;
+                if (string.IsNullOrEmpty(textBoxSource.Text) || string.IsNullOrEmpty(textBoxDestination.Text))
+                {
+                    MessageBox.Show("Please select both source and destination directories.");
+                    return;
+                }
+
+                // Call the function to process the data from the source and save to the destination
+                ProcessData(textBoxSource.Text, textBoxDestination.Text);
+
+                MessageBox.Show("Processing Completed!");
             }
-
-            // Call the function to process the data from the source and save to the destination
-            ProcessData(textBoxSource.Text, textBoxDestination.Text);
-
-            MessageBox.Show("Processing Completed!");
+            finally
+            {
+                this.Cursor = Cursors.Default; // Ensure the cursor is reset even if there's an error
+            }
         }
 
         private void ProcessData(string sourceDir, string destDir)

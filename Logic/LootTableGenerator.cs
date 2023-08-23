@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Text.Json.Serialization;
+﻿using BG3LootTableGenerator.DataStructures;  // Remember to import your data structures.
 using System.Text.Json;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using BG3LootTableGenerator.DataStructures;  // Remember to import your data structures.
 // ... (other using directives)
 
 public class LootTableGenerator
@@ -131,47 +126,47 @@ public class LootTableGenerator
             }
         }
     }
-        // Step 4: File Writing
-        private void WriteProcessedData(string destDir)
-        {
-            File.WriteAllText(
-                Path.Combine(destDir, "items.json"),
-                JsonSerializer.Serialize(_entries.Values, new JsonSerializerOptions
-                {
-                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                    WriteIndented = true
-                })
-            );
-
-            // ... (additional logic to generate armor and treasure table data and write to separate files)
-            IEnumerable<ItemEntry> armours = _entries.Values.Where(x => x.InheritsFrom("BASE_ARMOR"));
-            IEnumerable<ItemEntry> armoursWithStats = armours.Where(x => !string.IsNullOrWhiteSpace(x.Data.Stats));
-            IEnumerable<ItemEntry> armoursWithoutStats = armours.Except(armoursWithStats);
-
-            List<string> armourStatNames = armoursWithStats.Select(x => x.Data.Stats!).ToList();
-            List<string> generatedArmourTxt = new();
-
-            foreach (ItemEntry armour in armoursWithoutStats)
+    // Step 4: File Writing
+    private void WriteProcessedData(string destDir)
+    {
+        File.WriteAllText(
+            Path.Combine(destDir, "items.json"),
+            JsonSerializer.Serialize(_entries.Values, new JsonSerializerOptions
             {
-                string statsName = $"LIA_GENERATED_{armour.Name}";
-                string? inheritedStats = armour.GetStats(_entries.Values);
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                WriteIndented = true
+            })
+        );
 
-                if (!string.IsNullOrWhiteSpace(inheritedStats))
-                {
-                    generatedArmourTxt.Add(
-                        $"new entry \"{statsName}\"\n" +
-                        $"type \"Armor\"\n" +
-                        $"using \"{armour.GetStats(_entries.Values)}\"\n" +
-                        $"data \"RootTemplate\" \"{armour.MapKey}\"\n" +
-                        $"data \"Unique\" \"0\"\n");
-                    armourStatNames.Add(statsName);
-                }
+        // ... (additional logic to generate armor and treasure table data and write to separate files)
+        IEnumerable<ItemEntry> armours = _entries.Values.Where(x => x.InheritsFrom("BASE_ARMOR"));
+        IEnumerable<ItemEntry> armoursWithStats = armours.Where(x => !string.IsNullOrWhiteSpace(x.Data.Stats));
+        IEnumerable<ItemEntry> armoursWithoutStats = armours.Except(armoursWithStats);
+
+        List<string> armourStatNames = armoursWithStats.Select(x => x.Data.Stats!).ToList();
+        List<string> generatedArmourTxt = new();
+
+        foreach (ItemEntry armour in armoursWithoutStats)
+        {
+            string statsName = $"LIA_GENERATED_{armour.Name}";
+            string? inheritedStats = armour.GetStats(_entries.Values);
+
+            if (!string.IsNullOrWhiteSpace(inheritedStats))
+            {
+                generatedArmourTxt.Add(
+                    $"new entry \"{statsName}\"\n" +
+                    $"type \"Armor\"\n" +
+                    $"using \"{armour.GetStats(_entries.Values)}\"\n" +
+                    $"data \"RootTemplate\" \"{armour.MapKey}\"\n" +
+                    $"data \"Unique\" \"0\"\n");
+                armourStatNames.Add(statsName);
             }
-
-            List<string> generatedTreasureTxt = new() { "new treasuretable \"TUT_Chest_Potions\"\nCanMerge 1" };
-            generatedTreasureTxt.AddRange(armourStatNames.Select(x => $"new subtable \"1,1\"\nobject category \"I_{x}\",1,0,0,0,0,0,0,0"));
-
-            File.WriteAllLines(Path.Combine(destDir, "Armour.txt"), generatedArmourTxt);
-            File.WriteAllLines(Path.Combine(destDir, "TreasureTable.txt"), generatedTreasureTxt);
         }
+
+        List<string> generatedTreasureTxt = new() { "new treasuretable \"TUT_Chest_Potions\"\nCanMerge 1" };
+        generatedTreasureTxt.AddRange(armourStatNames.Select(x => $"new subtable \"1,1\"\nobject category \"I_{x}\",1,0,0,0,0,0,0,0"));
+
+        File.WriteAllLines(Path.Combine(destDir, "Armour.txt"), generatedArmourTxt);
+        File.WriteAllLines(Path.Combine(destDir, "TreasureTable.txt"), generatedTreasureTxt);
     }
+}

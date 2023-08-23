@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace BG3LootTableGenerator.DataStructures
+﻿namespace BG3LootTableGenerator.DataStructures
 {
     public record ItemEntry(string Name, string? Inheritance, string MapKey, string Path, ItemEntryData Data, ItemEntryLocalization Localization)
     {
