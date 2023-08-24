@@ -1,4 +1,4 @@
-﻿using BG3LootTableGenerator.DataStructures;  // Remember to import your data structures.
+﻿using BG3LootTableGenerator.DataStructures;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Xml.Linq;
@@ -7,11 +7,13 @@ using System.Xml.XPath;
 
 public class LootTableGenerator
 {
-    public record TraderCharacter(string? TraderName, string TraderId, IEnumerable<string> TraderTreasureTables);
-    public record TraderLevel(string LevelName, string LevelId, IEnumerable<TraderCharacter> Traders);
+    private List<string> _loadOrder = new List<string>();
 
     private Dictionary<string, ItemEntry> _entries = new();
-    private Dictionary<string, string> _localization = new();
+    private Localization _localization = new Localization("path_to_your_localization_file");
+    private Levels? _levels;
+    private Tags? _tags;
+
 
     public void Generate(string sourceDir, string destDir)
     {
@@ -34,7 +36,12 @@ public class LootTableGenerator
     {
         foreach (XElement elem in XDocument.Load(Path.Combine(sourceDir, "English/Localization/English/english.xml")).XPathSelectElements("contentList/content"))
         {
-            _localization[elem.Attribute("contentuid")!.Value] = elem.Value;
+            _tags = new Tags(_loadOrder);
+            _tags.LoadFrom(Path.Combine(sourceDir, "Shared/Public/Shared/Tags/Tags.lsx"));
+            _levels = new Levels(_loadOrder, _localization, _tags);
+            _levels.LoadFrom(Path.Combine(sourceDir, "Shared/Public/Shared/Levels/Levels.lsx"));
+            _localization.Add(elem.Attribute("contentuid")!.Value, elem.Value);
+
         }
 
         List<string> files = GetAllRootTemplates(Path.Combine(sourceDir, "Shared/Public/Shared"))
@@ -130,7 +137,6 @@ public class LootTableGenerator
         }
     }
     // Step 4: File Writing
-
     private void WriteProcessedData(string destDir)
     {
         File.WriteAllText(
@@ -166,46 +172,11 @@ public class LootTableGenerator
                 armourStatNames.Add(statsName);
             }
         }
-        // traders write level logic 
+
         List<string> generatedTreasureTxt = new() { "new treasuretable \"TUT_Chest_Potions\"\nCanMerge 1" };
         generatedTreasureTxt.AddRange(armourStatNames.Select(x => $"new subtable \"1,1\"\nobject category \"I_{x}\",1,0,0,0,0,0,0,0"));
 
         File.WriteAllLines(Path.Combine(destDir, "Armour.txt"), generatedArmourTxt);
         File.WriteAllLines(Path.Combine(destDir, "TreasureTable.txt"), generatedTreasureTxt);
-    }
-    public void WriteLevels(Levels levels, string destDir)
-    {
-        JsonSerializerOptions opts = new JsonSerializerOptions
-        {
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            WriteIndented = true,
-        };
-
-        string path = Path.Combine(destDir, "levels.json");
-        File.WriteAllText(path, JsonSerializer.Serialize(levels.Entries.Values, opts));
-    }
-
-    public void WriteTraders(Levels levels, string destDir)
-    {
-        JsonSerializerOptions opts = new JsonSerializerOptions
-        {
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            WriteIndented = true,
-        };
-
-        string path = Path.Combine(destDir, "traders.json");
-        var traderData = levels.Entries.Values
-            .Select(l => new TraderLevel(
-                LevelName: l.Name,
-                LevelId: l.Id,
-                Traders: l.Characters
-                    .Where(c => c.Tags?.Contains("TRADER") ?? false)
-                    .Select(c => new TraderCharacter(
-                        TraderName: c.DisplayName,
-                        TraderId: c.Name,
-                        TraderTreasureTables: c.TradeTreasureTables!))))
-            .Where(l => l.Traders.Any());
-
-        File.WriteAllText(path, JsonSerializer.Serialize(traderData, opts));
     }
 }

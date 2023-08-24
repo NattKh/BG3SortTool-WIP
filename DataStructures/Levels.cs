@@ -5,6 +5,31 @@ namespace BG3LootTableGenerator.DataStructures;
 
 public partial class Levels
 {
+    // ... (existing fields and properties)
+
+    // Add the LoadFrom method
+    public void LoadFrom(string path)
+    {
+        // Extract the level name from the path
+        string levelName = Path.GetFileNameWithoutExtension(path);
+
+        // Load the XML document
+        XDocument doc = XDocument.Load(path);
+
+        // Parse the XML document and populate the _entries dictionary
+        // This is a basic template. You may need to adjust the XPath queries and logic to match your XML structure.
+        IEnumerable<XElement> elements = doc.Root!.XPathSelectElements($"//Level[@name='{levelName}']");
+        foreach (XElement element in elements)
+        {
+            // Extract data from the XML element
+            string id = element.Attribute("id")?.Value ?? string.Empty;
+            string name = element.Attribute("name")?.Value ?? string.Empty;
+
+            // Create an Entry object and add it to the _entries dictionary
+            Entry entry = new Entry(name, id, new List<EntryCharacter>()); // Adjust this as needed
+            _entries[id] = entry;
+        }
+    }
     public IReadOnlyDictionary<string, Entry> Entries => _entries;
     private readonly Dictionary<string, Entry> _entries = new();
 
@@ -88,10 +113,12 @@ public partial class Levels
                 string? position = GetTransformPosition();
                 string? displayName = GetAttributeHandle("DisplayName");
 
-                if (displayName != null && _loc.Entries.TryGetValue(displayName, out string? resolvedDisplayName))
+                string? resolvedDisplayName = null;
+                if (displayName != null && _loc.Entries.TryGetValue(displayName, out resolvedDisplayName))
                 {
                     displayName = resolvedDisplayName;
                 }
+
 
                 List<string> tags = new();
 
