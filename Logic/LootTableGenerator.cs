@@ -7,6 +7,9 @@ using System.Xml.XPath;
 
 public class LootTableGenerator
 {
+    public record TraderCharacter(string? TraderName, string TraderId, IEnumerable<string> TraderTreasureTables);
+    public record TraderLevel(string LevelName, string LevelId, IEnumerable<TraderCharacter> Traders);
+
     private Dictionary<string, ItemEntry> _entries = new();
     private Dictionary<string, string> _localization = new();
 
@@ -127,6 +130,7 @@ public class LootTableGenerator
         }
     }
     // Step 4: File Writing
+
     private void WriteProcessedData(string destDir)
     {
         File.WriteAllText(
@@ -162,11 +166,46 @@ public class LootTableGenerator
                 armourStatNames.Add(statsName);
             }
         }
-
+        // traders write level logic 
         List<string> generatedTreasureTxt = new() { "new treasuretable \"TUT_Chest_Potions\"\nCanMerge 1" };
         generatedTreasureTxt.AddRange(armourStatNames.Select(x => $"new subtable \"1,1\"\nobject category \"I_{x}\",1,0,0,0,0,0,0,0"));
 
         File.WriteAllLines(Path.Combine(destDir, "Armour.txt"), generatedArmourTxt);
         File.WriteAllLines(Path.Combine(destDir, "TreasureTable.txt"), generatedTreasureTxt);
+    }
+    public void WriteLevels(Levels levels, string destDir)
+    {
+        JsonSerializerOptions opts = new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            WriteIndented = true,
+        };
+
+        string path = Path.Combine(destDir, "levels.json");
+        File.WriteAllText(path, JsonSerializer.Serialize(levels.Entries.Values, opts));
+    }
+
+    public void WriteTraders(Levels levels, string destDir)
+    {
+        JsonSerializerOptions opts = new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            WriteIndented = true,
+        };
+
+        string path = Path.Combine(destDir, "traders.json");
+        var traderData = levels.Entries.Values
+            .Select(l => new TraderLevel(
+                LevelName: l.Name,
+                LevelId: l.Id,
+                Traders: l.Characters
+                    .Where(c => c.Tags?.Contains("TRADER") ?? false)
+                    .Select(c => new TraderCharacter(
+                        TraderName: c.DisplayName,
+                        TraderId: c.Name,
+                        TraderTreasureTables: c.TradeTreasureTables!))))
+            .Where(l => l.Traders.Any());
+
+        File.WriteAllText(path, JsonSerializer.Serialize(traderData, opts));
     }
 }
