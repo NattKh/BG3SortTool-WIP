@@ -22,26 +22,33 @@
                 LoadFrom(path);
             }
 
-            // LoadFrom method to populate the _entries dictionary from an XML file
-            private void LoadFrom(string path)
-            {
-                if (!File.Exists(path))
-                {
-                    throw new FileNotFoundException($"The specified XML file was not found: {path}");
-                }
+        private string? FindEnglishXmlFile(string rootDirectory)
+        {
+            var files = Directory.GetFiles(rootDirectory, "english.xml", SearchOption.AllDirectories);
+            return files.FirstOrDefault();
+        }
 
-                XDocument doc = XDocument.Load(path);
-                foreach (XElement elem in doc.XPathSelectElements("contentList/content"))
-                {
-                    string key = elem.Attribute("contentuid")?.Value ?? string.Empty;
-                    string value = elem.Value;
-                    _entries[key] = value;
-                }
+        // LoadFrom method to populate the _entries dictionary from an XML file
+        public void LoadFrom(string rootDirectory)
+        {
+            string? xmlFilePath = FindEnglishXmlFile(rootDirectory);
+            if (xmlFilePath == null)
+            {
+                throw new FileNotFoundException($"Could not find the XML file in the specified directory or its subdirectories: {rootDirectory}");
             }
 
+            XDocument doc = XDocument.Load(xmlFilePath);
+            foreach (XElement elem in doc.XPathSelectElements("contentList/content"))
+            {
+                string key = elem.Attribute("contentuid")?.Value ?? string.Empty;
+                string value = elem.Value;
+                _entries[key] = value;
+            }
+        }
 
-            // TryGetValue method to retrieve a value from the _entries dictionary
-            public bool TryGetValue(string key, out string value)
+
+        // TryGetValue method to retrieve a value from the _entries dictionary
+        public bool TryGetValue(string key, out string value)
             {
                 return _entries.TryGetValue(key, out value);
             }

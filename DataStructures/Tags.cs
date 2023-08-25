@@ -9,30 +9,41 @@ namespace BG3LootTableGenerator.DataStructures
     {
         public IReadOnlyDictionary<string, string> Entries => _entries;
         private readonly Dictionary<string, string> _entries = new();
+
         public IEnumerable<string> GetAllTagNames()
         {
             return _entries.Values;
         }
 
-
-        public Tags(IEnumerable<string> loadOrder)
+        public Tags(string sourceDir)
         {
-            foreach (string filePath in loadOrder
-                .SelectMany(x => Util.GetAllTemplates(Path.Combine(Config.SourceDir, x, "Tags")))
-                .Progress("Loading tags"))
+            foreach (string filePath in Util.GetAllTemplates(Path.Combine(sourceDir, "Tags")).Progress("Loading tags"))
             {
                 LoadFrom(filePath);
             }
         }
 
-        public void LoadFrom(string path)
+        public void LoadFrom(string rootDirectory)
         {
-            IEnumerable<XElement> elements = XDocument.Load(path).Root!.XPathSelectElements("region[@id = 'Tags']/node[@id = 'Tags']");
-            foreach (XElement element in elements)
+            string? xmlFilePath = FindEnglishXmlFile(rootDirectory);
+            if (xmlFilePath == null)
             {
-                string? GetAttributeValue(string id) => element.XPathSelectElement($"attribute[@id='{id}']")?.Attribute("value")?.Value;
-                _entries[GetAttributeValue("UUID")!] = GetAttributeValue("Name")!;
+                throw new FileNotFoundException($"Could not find the XML file in the specified directory or its subdirectories: {rootDirectory}");
             }
+
+            XDocument doc = XDocument.Load(xmlFilePath);
+            foreach (XElement elem in doc.XPathSelectElements("contentList/content"))
+            {
+                string key = elem.Attribute("contentuid")?.Value ?? string.Empty;
+                string value = elem.Value;
+                _entries[key] = value;
+            }
+        }
+
+        private string? FindEnglishXmlFile(string rootDirectory)
+        {
+            var files = Directory.GetFiles(rootDirectory, "english.xml", SearchOption.AllDirectories);
+            return files.FirstOrDefault();
         }
     }
 }

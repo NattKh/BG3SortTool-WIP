@@ -11,10 +11,18 @@ public class LootTableGenerator
     private List<string> _loadOrder = new List<string>();
     private Dictionary<string, ItemEntry> _entries = new();
     private Localization _localization;
+    //auto find the xml file
+    public string? FindEnglishXmlFile(string rootDirectory)
+    {
+        var files = Directory.GetFiles(rootDirectory, "english.xml", SearchOption.AllDirectories);
+        return files.FirstOrDefault();
+    }
     //information on item count for error catching
     public int ItemCount => _entries.Count;
     // Default constructor
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public LootTableGenerator()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
         // Don't initialize _localization here
     }
@@ -45,7 +53,7 @@ public class LootTableGenerator
 
 
     // Existing helper method
-    private IEnumerable<string> GetAllRootTemplates(string dir)
+    public IEnumerable<string> GetAllRootTemplates(string dir)
     {
         return Directory
             .EnumerateFiles(Path.Combine(dir), "*.lsx", SearchOption.AllDirectories)
@@ -54,11 +62,17 @@ public class LootTableGenerator
     }
 
     // Step 2: XML Parsing
-    private void ParseXMLFiles(string sourceDir)
+    public void ParseXMLFiles(string sourceDir)
     {
-        foreach (XElement elem in XDocument.Load(Path.Combine(sourceDir, "English/Localization/English/english.xml")).XPathSelectElements("contentList/content"))
+        // Search for the english.xml file
+        string? xmlFilePath = FindEnglishXmlFile(sourceDir);
+        if (xmlFilePath == null)
         {
-            _tags = new Tags(_loadOrder);
+            throw new FileNotFoundException("Could not find english.xml in the specified directory or its subdirectories.");
+        }
+        foreach (XElement elem in XDocument.Load(xmlFilePath).XPathSelectElements("contentList/content"))
+        {
+            _tags = new Tags(sourceDir);
             _tags.LoadFrom(Path.Combine(sourceDir, "Shared/Public/Shared/Tags/Tags.lsx"));
             _levels = new Levels(_loadOrder, _localization, _tags);
             _levels.LoadFrom(Path.Combine(sourceDir, "Shared/Public/Shared/Levels/Levels.lsx"));
@@ -125,7 +139,7 @@ public class LootTableGenerator
     }
 
     // Step 3: Data Processing logic
-    private void ProcessParsedData()
+    public void ProcessParsedData()
     {
         foreach ((string k, ItemEntry v) in _entries)
         {
@@ -159,7 +173,7 @@ public class LootTableGenerator
         }
     }
     // Step 4: File Writing
-    private void WriteProcessedData(string destDir)
+    public void WriteProcessedData(string destDir)
     {
         File.WriteAllText(
             Path.Combine(destDir, "items.json"),

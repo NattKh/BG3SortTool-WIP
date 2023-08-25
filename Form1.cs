@@ -136,8 +136,32 @@ namespace BG3LootTableGenerator
 
         private void LoadTagsButton_Click(object sender, EventArgs e)
         {
-            _tags = new Tags(_lootTableGenerator.LoadOrder);
-            UpdateTagList();
+            using (FolderBrowserDialog folderDialog = new FolderBrowserDialog())
+            {
+                folderDialog.Description = "Select the folder containing the Tags";
+
+                if (folderDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string selectedPath = folderDialog.SelectedPath;
+
+                    try
+                    {
+                        _tags = new Tags(selectedPath); // This will now use the folder path to load the tags
+                        MessageBox.Show("Tags in the selected folder were loaded successfully!");
+
+                        // Refresh the tag list in the GUI
+                        UpdateTagList();
+                    }
+                    catch (FileNotFoundException ex)
+                    {
+                        MessageBox.Show($"Error loading tags: {ex.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"An unexpected error occurred: {ex.Message}");
+                    }
+                }
+            }
         }
 
         private void UpdateTagList()
@@ -156,30 +180,41 @@ namespace BG3LootTableGenerator
         }
         private void loadXmlButton_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog
+            using (FolderBrowserDialog folderDialog = new FolderBrowserDialog())
             {
-                Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*",
-                Title = "Select the XML file"
-            };
+                folderDialog.Description = "Select the folder containing the XML file";
 
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                string selectedPath = openFileDialog.FileName;
+                if (folderDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string selectedPath = folderDialog.SelectedPath;
 
-                // Save the path to the settings
-                Properties.Settings.Default.XmlFilePath = selectedPath;
-                Properties.Settings.Default.Save();
+                    // Save the path to the settings
+                    Properties.Settings.Default.XmlFilePath = selectedPath;
+                    Properties.Settings.Default.Save();
 
-                // Re-initialize the LootTableGenerator with the new path
-                _lootTableGenerator = new LootTableGenerator(selectedPath);
-                MessageBox.Show("XML file loaded successfully!");
+                    // Re-initialize the LootTableGenerator
+                    _lootTableGenerator = new LootTableGenerator();
 
-                // Update the label with the item count
-                lblItemCount.Text = $"Total Items: {_lootTableGenerator.ItemCount}";
+                    try
+                    {
+                        _lootTableGenerator.ParseXMLFiles(selectedPath); // Call the ParseXMLFiles method
+                        MessageBox.Show("XML files in the selected folder were loaded successfully!");
+
+                        // Optionally, refresh any GUI elements that display data from the XML file
+                        // For example:
+                        // RefreshItemsList();
+                    }
+                    catch (FileNotFoundException ex)
+                    {
+                        MessageBox.Show($"Error loading XML file: {ex.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"An unexpected error occurred: {ex.Message}");
+                    }
+                }
             }
         }
-
-
         private void searchTextBox_TextChanged(object sender, EventArgs e)
         {
 
