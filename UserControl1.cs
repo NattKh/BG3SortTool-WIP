@@ -1,4 +1,5 @@
-﻿namespace BG3LootTableGenerator
+﻿/*using System.IO;
+namespace BG3LootTableGenerator
 {
     public partial class UserControl1 : UserControl
     {
@@ -74,7 +75,14 @@
 
         private void ProcessData(string sourceDir, string destDir)
         {
-            _lootTableGenerator.Generate(sourceDir, destDir);
+            string localizationPath = Path.Combine(sourceDir, "English/Localization/English/english.xml");
+            _lootTableGenerator.Generate(sourceDir, destDir, localizationPath);
+        }
+
+        private void textBoxDestination_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
+*/

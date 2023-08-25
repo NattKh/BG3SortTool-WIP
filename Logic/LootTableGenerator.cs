@@ -10,17 +10,25 @@ public class LootTableGenerator
     private List<string> _loadOrder = new List<string>();
 
     private Dictionary<string, ItemEntry> _entries = new();
-    private Localization _localization = new Localization("path_to_your_localization_file");
+    private Localization _localization;
+    public LootTableGenerator()
+    {
+        _localization = new Localization("English/Localization/English/english.xml");
+    }
+
     private Levels? _levels;
     private Tags? _tags;
 
 
-    public void Generate(string sourceDir, string destDir)
+    public void Generate(string sourceDir, string destDir, string localizationPath)
     {
+        _localization = new Localization(localizationPath);
         ParseXMLFiles(sourceDir);
         ProcessParsedData();
         WriteProcessedData(destDir);
     }
+
+
 
     // Existing helper method
     private IEnumerable<string> GetAllRootTemplates(string dir)
