@@ -9,6 +9,11 @@ namespace BG3LootTableGenerator.DataStructures
     {
         public IReadOnlyDictionary<string, string> Entries => _entries;
         private readonly Dictionary<string, string> _entries = new();
+        public IEnumerable<string> GetAllTagNames()
+        {
+            return _entries.Values;
+        }
+
 
         public Tags(IEnumerable<string> loadOrder)
         {

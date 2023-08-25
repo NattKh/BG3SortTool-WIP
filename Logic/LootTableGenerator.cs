@@ -5,22 +5,32 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 // ... (other using directives)
 
+
 public class LootTableGenerator
 {
     private List<string> _loadOrder = new List<string>();
 
     private Dictionary<string, ItemEntry> _entries = new();
     private Localization _localization;
-    public LootTableGenerator()
+    public LootTableGenerator() : this("English/Localization/English/english.xml")
     {
-        _localization = new Localization("English/Localization/English/english.xml");
     }
+
+    public LootTableGenerator(string localizationPath)
+    {
+        _localization = new Localization(localizationPath);
+    }
+
+
+
+    public List<string> LoadOrder => _loadOrder;
 
     private Levels? _levels;
     private Tags? _tags;
 
 
     public void Generate(string sourceDir, string destDir, string localizationPath)
+
     {
         _localization = new Localization(localizationPath);
         ParseXMLFiles(sourceDir);
@@ -187,4 +197,10 @@ public class LootTableGenerator
         File.WriteAllLines(Path.Combine(destDir, "Armour.txt"), generatedArmourTxt);
         File.WriteAllLines(Path.Combine(destDir, "TreasureTable.txt"), generatedTreasureTxt);
     }
+    //SearchFunction call
+    public IEnumerable<ItemEntry> SearchItems(string query)
+    {
+        return _entries.Values.Where(item => item.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
+    }
+
 }
