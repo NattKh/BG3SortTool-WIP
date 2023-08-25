@@ -51,11 +51,12 @@
             pathTextBox = new TextBox();
             dataTextBox = new TextBox();
             localizationTextBox = new TextBox();
-            searchBox = new TextBox();
+            searchTextBox = new TextBox();
             searchButton = new Button();
             loadTagsButton = new Button();
             tagList = new ListBox();
             loadXmlButton = new Button();
+            lblItemCount = new Label();
             ((System.ComponentModel.ISupportInitialize)itemsGrid).BeginInit();
             SuspendLayout();
             // 
@@ -258,12 +259,13 @@
             localizationTextBox.Size = new Size(646, 31);
             localizationTextBox.TabIndex = 15;
             // 
-            // searchBox
+            // searchTextBox
             // 
-            searchBox.Location = new Point(160, 272);
-            searchBox.Name = "searchBox";
-            searchBox.Size = new Size(430, 31);
-            searchBox.TabIndex = 16;
+            searchTextBox.Location = new Point(160, 272);
+            searchTextBox.Name = "searchTextBox";
+            searchTextBox.Size = new Size(430, 31);
+            searchTextBox.TabIndex = 16;
+            searchTextBox.TextChanged += searchTextBox_TextChanged;
             // 
             // searchButton
             // 
@@ -303,18 +305,28 @@
             loadXmlButton.TabIndex = 20;
             loadXmlButton.Text = "Load XML";
             loadXmlButton.UseVisualStyleBackColor = true;
-            loadXmlButton.Click += loadXmlButton_Click_1;
+            loadXmlButton.Click += loadXmlButton_Click;
+            // 
+            // lblItemCount
+            // 
+            lblItemCount.AutoSize = true;
+            lblItemCount.Location = new Point(170, 227);
+            lblItemCount.Name = "lblItemCount";
+            lblItemCount.Size = new Size(96, 25);
+            lblItemCount.TabIndex = 21;
+            lblItemCount.Text = "ItemCount";
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1510, 864);
+            Controls.Add(lblItemCount);
             Controls.Add(loadXmlButton);
             Controls.Add(tagList);
             Controls.Add(loadTagsButton);
             Controls.Add(searchButton);
-            Controls.Add(searchBox);
+            Controls.Add(searchTextBox);
             Controls.Add(localizationTextBox);
             Controls.Add(dataTextBox);
             Controls.Add(pathTextBox);
@@ -363,10 +375,11 @@
         private TextBox pathTextBox;
         private TextBox dataTextBox;
         private TextBox localizationTextBox;
-        private TextBox searchBox;
+        private TextBox searchTextBox;
         private Button searchButton;
         private Button loadTagsButton;
         private ListBox tagList;
         private Button loadXmlButton;
+        private Label lblItemCount;
     }
 }

@@ -9,16 +9,20 @@ using System.Xml.XPath;
 public class LootTableGenerator
 {
     private List<string> _loadOrder = new List<string>();
-
     private Dictionary<string, ItemEntry> _entries = new();
     private Localization _localization;
-    public LootTableGenerator() : this("English/Localization/English/english.xml")
+    //information on item count for error catching
+    public int ItemCount => _entries.Count;
+    // Default constructor
+    public LootTableGenerator()
     {
+        // Don't initialize _localization here
     }
 
-    public LootTableGenerator(string localizationPath)
+    // Overloaded constructor that accepts the XML path
+    public LootTableGenerator(string path)
     {
-        _localization = new Localization(localizationPath);
+        _localization = new Localization(path);
     }
 
 

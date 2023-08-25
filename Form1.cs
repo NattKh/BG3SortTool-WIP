@@ -33,7 +33,7 @@ namespace BG3LootTableGenerator
             }
             else
             {
-                // Initialize the LootTableGenerator without a path or with a default path
+                // Initialize the LootTableGenerator without a path
                 _lootTableGenerator = new LootTableGenerator();
             }
         }
@@ -117,12 +117,21 @@ namespace BG3LootTableGenerator
         }
         private void LoadItemsToGrid(List<ItemEntry> items)
         {
-            itemsGrid.DataSource = items;
+            itemsGrid.DataSource = null; // Clear the existing data source
+            itemsGrid.DataSource = items; // Bind the new data source
         }
+
 
         private void searchButton_Click(object sender, EventArgs e)
         {
-            //make search logic code here
+            // Get the user's search query from the text box
+            string query = searchTextBox.Text;
+
+            // Use the LootTableGenerator to search for items
+            var matchingItems = _lootTableGenerator.SearchItems(query);
+
+            // Display the matching items in your grid or list
+            LoadItemsToGrid(matchingItems.ToList());
         }
 
         private void LoadTagsButton_Click(object sender, EventArgs e)
@@ -164,10 +173,14 @@ namespace BG3LootTableGenerator
                 // Re-initialize the LootTableGenerator with the new path
                 _lootTableGenerator = new LootTableGenerator(selectedPath);
                 MessageBox.Show("XML file loaded successfully!");
+
+                // Update the label with the item count
+                lblItemCount.Text = $"Total Items: {_lootTableGenerator.ItemCount}";
             }
         }
 
-        private void loadXmlButton_Click_1(object sender, EventArgs e)
+
+        private void searchTextBox_TextChanged(object sender, EventArgs e)
         {
 
         }
