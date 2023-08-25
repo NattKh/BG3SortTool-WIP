@@ -19,31 +19,19 @@ namespace BG3LootTableGenerator.DataStructures
         {
             foreach (string filePath in Util.GetAllTemplates(Path.Combine(sourceDir, "Tags")).Progress("Loading tags"))
             {
-                LoadFrom(filePath);
+                ProcessLsxFile(filePath);
             }
         }
 
-        public void LoadFrom(string rootDirectory)
+        public void ProcessLsxFile(string path)
         {
-            string? xmlFilePath = FindEnglishXmlFile(rootDirectory);
-            if (xmlFilePath == null)
-            {
-                throw new FileNotFoundException($"Could not find the XML file in the specified directory or its subdirectories: {rootDirectory}");
-            }
-
-            XDocument doc = XDocument.Load(xmlFilePath);
-            foreach (XElement elem in doc.XPathSelectElements("contentList/content"))
+            XDocument doc = XDocument.Load(path);
+            foreach (XElement elem in doc.XPathSelectElements("region[@id = 'Tags']/node[@id = 'Tags']"))
             {
                 string key = elem.Attribute("contentuid")?.Value ?? string.Empty;
                 string value = elem.Value;
                 _entries[key] = value;
             }
-        }
-
-        private string? FindEnglishXmlFile(string rootDirectory)
-        {
-            var files = Directory.GetFiles(rootDirectory, "english.xml", SearchOption.AllDirectories);
-            return files.FirstOrDefault();
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Xml.XPath;
 
 public class LootTableGenerator
 {
+
     private List<string> _loadOrder = new List<string>();
     private Dictionary<string, ItemEntry> _entries = new();
     private Localization _localization;
@@ -17,6 +18,7 @@ public class LootTableGenerator
         var files = Directory.GetFiles(rootDirectory, "english.xml", SearchOption.AllDirectories);
         return files.FirstOrDefault();
     }
+
     //information on item count for error catching
     public int ItemCount => _entries.Count;
     // Default constructor
@@ -73,7 +75,7 @@ public class LootTableGenerator
         foreach (XElement elem in XDocument.Load(xmlFilePath).XPathSelectElements("contentList/content"))
         {
             _tags = new Tags(sourceDir);
-            _tags.LoadFrom(Path.Combine(sourceDir, "Shared/Public/Shared/Tags/Tags.lsx"));
+            _tags.ProcessLsxFile(Path.Combine(sourceDir, "Shared/Public/Shared/Tags/Tags.lsx"));
             _levels = new Levels(_loadOrder, _localization, _tags);
             _levels.LoadFrom(Path.Combine(sourceDir, "Shared/Public/Shared/Levels/Levels.lsx"));
             _localization.Add(elem.Attribute("contentuid")!.Value, elem.Value);
